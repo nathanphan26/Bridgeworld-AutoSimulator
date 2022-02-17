@@ -74,7 +74,6 @@ def secondsLeftUntilQuesting(tokenId):
     seconds_since_questing = date_current_time - date_start_time
     eight_hours = 8 * 60 * 60
     return (eight_hours - seconds_since_questing.total_seconds())
-### HELPER FUNCTIONS ###
 
 ### CONTRACT HELPER FUNCTIONS ###
 
@@ -104,8 +103,6 @@ def constructTxRevealQuest():
 def constructTxRestartQuest():
     return constructTx(config.restart_gas_limit)
 
-### CONTRACT HELPER FUNCTIONS ###
-
 ### CONTRACT GETTER FUNCTIONS ###
 
 # Returns Whether a Token item is Ready for Reveal
@@ -127,8 +124,6 @@ def getTokenIdToQuestStartTime(tokenId):
     except exceptions.ContractLogicError as err:
         discord.sendWebhookFailure("tokenIdToQuestStartTime", str(err))
     return start_time
-
-### CONTRACT GETTER FUNCTIONS ###
 
 ### CONTRACT FUNCTIONS ###
 
@@ -207,5 +202,3 @@ def executeRestartQuest(token_input_array, difficulties_input_array, quest_input
     (gas_used, fees_paid) = extractFieldsFromTransaction(result_to_hex)
     discord.sendWebhookSuccess("restartTokenQuests", result_to_hex, gas_used, fees_paid, getWalletBalance())
     return result
-### CONTRACT FUNCTIONS ###
-
