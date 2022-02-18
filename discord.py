@@ -98,3 +98,26 @@ def sendWebhookInfo(message):
         ]
     }
     postWebhook(data)
+
+# Sends a Pending Transaction Webhook for a Given Message
+# PARAMS:
+#   tx_hash             : Transaction Hash
+def sendWebhookPending(tx_hash):
+    tx_url = "https://arbiscan.io/tx/" + tx_hash
+    data = {
+        "username" : "Bridgeworld Update",
+        "embeds" : [
+            {
+                "title" : "Transaction Submitted",
+                "description" : "[{}]({})".format(tx_url, tx_url),
+                "color" : "16776960", # YELLOW
+                "fields": [
+                    {
+                        "name": "Current Time",
+                        "value": datetime.now().strftime("%H:%M:%S")
+                    }
+                ]
+            }
+        ]
+    }
+    postWebhook(data)
