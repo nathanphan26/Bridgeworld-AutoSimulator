@@ -41,25 +41,18 @@ def getNewNonce():
 #   gas_used    : Total Gas Used
 #   fees_paid   : Total Fees Paid
 def extractFieldsFromTransaction(tx_hash):
-    print(tx_hash)
     count = 0
     gas_used = None
     gas_price = None
     fees_paid = None
     while count < 5:    # MAX 5 Retries
         try:
-            print("Trying")
             gas_used = web3.eth.get_transaction_receipt(tx_hash).gasUsed                # Gas Used from TX
-            print(gas_used)
             gas_price = web3.eth.get_transaction_receipt(tx_hash).effectiveGasPrice     # Gas Price Paid from TX
-            print(gas_price)
             fees_paid = gas_used * web3.fromWei(gas_price, 'ether')                     # Total Fees Paid from TX
-            print(fees_paid)
             count = 5                                                                   # Force quit
         except exceptions.TransactionNotFound as err:                                   # Catch Exception in case Transaction hasn't been posted to public pool
-            print("error")
-            count += 1  
-            print("Count: " + str(count))                                                                
+            count += 1                                                         
             discord.sendWebhookFailure("extractFieldsFromTransaction", str(err))        # Send Webhook per Failure
             time.sleep(5)                                                               # Make sure to add time between checks
     return (gas_used, fees_paid)
