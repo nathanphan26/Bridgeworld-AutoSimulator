@@ -1,6 +1,8 @@
 import config
 import app
 import time
+import threading
+import account as acc
 
 # FIVE STATES THE PROCESS CAN BE IN
 # 1: QUEST HASNT STARTED AND CAN REVEAL
@@ -9,36 +11,45 @@ import time
 # 4: QUEST STARTED AND CAN REVEAL
 # 5: QUEST STARTED AND REVEALED
 
-def runQuest(tokenId):
-    token_array = [tokenId]
+def runQuest(account):
+    print("{}: RUNNING QUEST FUNCTION FOR ACCOUNT...".format(account.id))
 
-    seconds_until_questing = round(app.secondsLeftUntilQuesting(tokenId), 0)        # Double check to see if quest is ready
+    seconds_until_questing = round(app.secondsLeftUntilQuesting(account), 0)        # Double check to see if quest is ready
+    print("{}: SECONDS UNTIL QUESTING...: {}".format(account.id, str(seconds_until_questing)))
 
     while seconds_until_questing + 10 > 0:
         time.sleep(seconds_until_questing + 15)                                     # Sleep until ready
-        
-        seconds_until_questing = round(app.secondsLeftUntilQuesting(tokenId), 0)    
+          
+        seconds_until_questing = round(app.secondsLeftUntilQuesting(account), 0)
+        print("{}: SECONDS UNTIL QUESTING...: {}".format(account.id, str(seconds_until_questing)))
 
-    app.executeRestartQuest(token_array, config.difficulties_input_array, config.quest_input_array)
+    print("{}: QUESTING READY. STARTING QUEST FOR ACCOUNT...".format(account.id))
+    app.executeRestartQuest(account, config.difficulties_input_array, config.quest_input_array)
 
-    runReveal(tokenId)
+    runReveal(account)
     
+def runReveal(account):
+    print("{}: RUNNING REVEAL FUNCTION FOR ACCOUNT...".format(account.id))
 
-def runReveal(tokenId):
-    token_array = [tokenId]
-
-    isRevealReady = app.canReveal(tokenId)      # Returns Error if revealed, False if waiting on reveal, and True if revealed
+    isRevealReady = app.canReveal(account)      # Returns Error if revealed, False if waiting on reveal, and True if revealed
+    print("{}: TOKEN READY FOR REVEAL?: {}".format(account.id, isRevealReady))
 
     if isRevealReady == 'Error':                # Revealed therefore runQuest
-        runQuest(tokenId)
+        runQuest(account)
     elif isRevealReady == 'False':              # Waiting on reveal therefore sleep until reveal
+        print("{}: REVEAL NOT READY. SLEEPING FOR 4 MINUTES...".format(account.id))
         time.sleep(4 * 60)
-        runReveal(tokenId)
+        runReveal(account)
     elif isRevealReady == 'True':               # Ready to reveal therefore reveal
-        app.executeRevealQuest(token_array)
-        runQuest(tokenId)
+        print("{}: TOKEN READY FOR REVEAL. REVEALING TOKEN FOR ACCOUNT...".format(account.id))
+        app.executeRevealQuest(account)
+        runQuest(account)
 
 def main():
-    runReveal(config.token_input_array_list[0][0])
+    account_array = acc.init()
+    for account in account_array:
+        thread = threading.Thread(target=runReveal, args=(account,))
+        thread.start()
+        time.sleep(5)
 
 main()
